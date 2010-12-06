@@ -1,0 +1,80 @@
+<html>
+<head><title>Voice Search</title></head>
+<script type="text/javascript">
+
+	var ENGINE_URLS = {
+		"google":		"http://www.google.com/search?hl=en&q=%s",
+		"google_ssl":	"https://encrypted.google.com/search?hl=en&q=%s",
+		"wikipedia":	"http://www.google.com/search?btnI=745&q=site%3Aen.wikipedia.org+%s",
+		"bing":			"http://www.bing.com/search?setmkt=en-US&q=%s",
+		"yahoo":		"http://search.yahoo.com/search?ei={inputEncoding}&fr=crmas&p=%s"
+	};
+
+	function onKeyPressed(myfield,e) {
+        var keycode;
+        if (window.event) keycode = window.event.keyCode;
+        else if (e) keycode = e.which;
+        else return true;
+
+        if (keycode == 13) {
+			submitQuery();
+			return false;
+        }
+        else
+            return true;
+    }
+
+	function submitQuery() {
+
+		var q = document.getElementById("q").value;
+		var qUrl = getQueryURL(q);
+		var props = { "url": qUrl, "selected": true };
+		chrome.tabs.create(props);
+	}
+
+	function getQueryURL(q) {
+	
+		var url;
+
+		var engine = localStorage["engine"];
+		var wikimode = localStorage["wikimode"] == null ? true : localStorage["wikimode"] == "true";
+		if(q.length > 5 && q.substr(0, 5).toLowerCase() == "wiki " && wikimode) {
+		
+			url = ENGINE_URLS["wikipedia"];
+			q = q.substr(5);	
+
+		} else {
+
+			if(engine == "custom") {
+				url = localStorage["engineCustom"];
+			} else {
+				url = ENGINE_URLS[engine];
+			}
+
+			if(url == null) {
+				url = ENGINE_URLS["google"];
+			}
+		}
+
+		url = url.replace(/%s/ig, escape(q));
+		return url;
+	}
+
+</script>
+<style>
+body { width: 400px; height: 50px; }
+#q { width: 400px;
+     height: 50px;
+     padding: 10px 15px;
+     font-size: 155%;
+     border-radius: 10px;
+     border: 1px solid #ccc;
+     outline: 0;
+}
+</style>
+<body onKeyPress="return onKeyPressed(this,event)">
+	<div id="voicesearch">
+		<input id="q" onwebkitspeechchange="submitQuery()" type="text" x-webkit-speech speech />
+	</div>
+</body>
+</html>

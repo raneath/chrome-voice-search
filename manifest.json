@@ -1,0 +1,16 @@
+{
+	"name": "Voice Search",
+	"version": "1.0",
+	"description": "Voice Search",
+	"icons": { "16": "icon.png",
+			   "48": "icon.48.png" },
+	"options_page": "options.html",
+	"browser_action": {
+		"default_icon": "icon.png",
+		"popup": "popup.html"
+	},
+	"permissions": [
+		"http://*/*",
+		"https://*/*"
+	]
+}

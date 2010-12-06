@@ -1,0 +1,134 @@
+<html>
+<head><title>Voice Search Options</title></head>
+<script type="text/javascript">
+
+var seMap = {
+	"google":		"se1",
+	"google_ssl":	"se2",
+	"wikipedia":	"se3",
+	"bing":			"se4",
+	"yahoo":		"se5",
+	"custom":		"se6",
+};
+
+var selectedEngine = "google";
+
+// Saves options to localStorage.
+function save_options() {
+
+	var status = document.getElementById("status");
+	
+	var engineCustom = document.getElementById("engineCustom").value;
+	
+	if(selectedEngine == "custom" && engineCustom == "") {
+		status.innerHTML = "Custom search engine URL is required for this selection.";
+		return;
+	}
+
+	var wikimode = document.getElementById("wikimode").checked;
+
+	localStorage["engine"] = selectedEngine;
+	localStorage["engineCustom"] = engineCustom;
+	localStorage["wikimode"] = wikimode;
+
+	// Update status to let user know options were saved.
+	status.innerHTML = "Options Saved.";
+	setTimeout(function() {
+		status.innerHTML = "";
+	}, 750);
+}
+
+// Restores select box state to saved value from localStorage.
+function restore_options() {
+	var engine = localStorage["engine"];
+	var engineCustom = localStorage["engineCustom"];
+	var wikimode = localStorage["wikimode"];
+	var tbEngineCustom = document.getElementById("engineCustom");
+	var ckWikimode = document.getElementById("wikimode");
+	
+	if(engineCustom)
+		tbEngineCustom.value = engineCustom;
+
+	if(wikimode == null) {
+		wikimode = true;
+	} else {
+		if(typeof(wikimode) == "string") {
+			wikimode = wikimode == "true";
+		}
+	}
+
+	ckWikimode.checked = wikimode;
+
+	onSearchEngineSelected(engine);
+}
+
+function onSearchEngineSelected(engine) {
+
+	document.getElementById("status").innerHTML = "";
+
+	var selectedSE = seMap[engine];
+
+	if(selectedSE == null) {
+		engine = "google";
+		selectedSE = seMap[engine];
+	}
+
+	for(var i = 1; i <= 6; i++) {
+		var seId = "se" + i;
+		var se = document.getElementById(seId);
+		if(selectedSE == seId) {
+			se.className = "selected";
+		} else {
+			se.className = "";
+		}
+	}
+
+	var customSearch = document.getElementById("customSearch");
+	customSearch.style["display"] = (engine == "custom") ? "" : "none";
+
+	selectedEngine = engine;
+}
+
+
+</script>
+<style>
+#status { color: #ff0000; }
+td { padding: 10px; }
+.selected {
+	border: 5px solid #00FF00;
+}
+table { margin-top: 10px; margin-bottom: 10px; }
+#engineCustom { width: 400px; }
+</style>
+<body onload="restore_options()">
+<h1><img src="icon.48.png" /> Voice Search Options</h1>
+<div id="options">
+	Search Engine:<br/>
+	<table>
+		<tr>
+			<td id="se1" onclick="onSearchEngineSelected('google')">Google</td>
+			<td id="se2" onclick="onSearchEngineSelected('google_ssl')">Google SSL</td>
+			<td id="se3" onclick="onSearchEngineSelected('wikipedia')">Wikipedia</td>
+			<td id="se4" onclick="onSearchEngineSelected('bing')">Bing</td>
+			<td id="se5" onclick="onSearchEngineSelected('yahoo')">Yahoo!</td>
+			<td id="se6" onclick="onSearchEngineSelected('custom')">Custom Search Engine</td>
+		</tr>
+	</table>
+	<div id="customSearch">
+		Custom Search URL (%q = search query):
+		<input type="text" id="engineCustom" placeholder="http://www.google.com/search?hl=en&q=%s" />
+	</div>
+	<div id="wiki">
+		<br/>
+		Enable Wiki Keyword mode:
+		<input type="checkbox" id="wikimode"/>
+		<div style="padding-left: 20px; font-style: italic">
+			Wiki Keyword mode will automatically perform a search on Wikipedia if you say "wiki" first.
+		</div>
+	</div>
+	<br/><br/><button onclick="save_options()">Save Options</button>
+	<br/>
+	<span id="status"></span>
+</div>
+</body>
+</html>
